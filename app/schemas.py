@@ -1,38 +1,41 @@
 # This file contains Pydantic models for data validation and serialization
 
-from pydantic import BaseModel, EmailStr
-import phonenumbers
+from pydantic import BaseModel, EmailStr, ConfigDict, computed_field
+from typing import Optional
+from datetime import datetime
+# import phonenumbers
 
-
-# from typing import Optional
-# from datetime import datetime
 
 class UserBase(BaseModel):
     name            : str
     email           : EmailStr
-    phone_number    : str
+    phone_number    : Optional[str] = None
+
 
 class UserCreate(UserBase):
     password        : str
 
-    @field_validator('phone_number')
-    def validate_phone(cls, v):
-        try:
-            parsed_num = phonenumbers.parse(v, "IN")
-            if not phonenumbers.is_valid_number(parsed_num):
-                raise ValueError('Invalid phone number')
-            return phonenumbers.format_number(
-                parsed_num, phonenumbers.PhoneNumberFormat.E164
-            )
-        except phonenumbers.NumberParseException:
-            raise ValueError('Invalid phone number format')
+    # @field_validator('phone_number')
+    # def validate_phone(cls, v):
+    #     try:
+    #         parsed_num = phonenumbers.parse(v, "IN")
+    #         if not phonenumbers.is_valid_number(parsed_num):
+    #             raise ValueError('Invalid phone number')
+    #         return phonenumbers.format_number(
+    #             parsed_num, phonenumbers.PhoneNumberFormat.E164
+    #         )
+    #     except phonenumbers.NumberParseException:
+    #         raise ValueError('Invalid phone number format')
 
 
-class UserResponse(UserBase):
+class UserResponse(BaseModel):
     id              : int
+    name            : str
     created_at      : datetime
     updated_at      : datetime
-    
+    # email           : EmailStr
+    # phone_number    : Optional[str] = None
+
     # class Config:
     #   orm_mode = True
     # below is the new way to do it
@@ -43,7 +46,16 @@ class UserResponse(UserBase):
     def welcome_message(self) -> str:
         return f"Welcome to ZomatoClone, {self.name}!!. Enjoy your meal!"
 
+class Token(BaseModel):
+    access_token: str
+    token_type: str
 
+
+class TokenData(BaseModel):
+    id: Optional[str] = None
+
+
+"""
 # --- 2. Browsing (Get Menu / Restaurant Details) ---
 
 # Global Dish info (The "What")
@@ -135,4 +147,4 @@ class ReviewResponse(BaseModel):
     
     model_config = ConfigDict(from_attributes=True)
 
-
+"""

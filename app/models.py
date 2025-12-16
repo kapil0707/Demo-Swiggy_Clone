@@ -1,6 +1,9 @@
 # This file contains SQLAlchemy models for the database
 from sqlalchemy import Boolean, Column, Integer, String, DateTime, Float, ForeignKey
 from sqlalchemy.orm import relationship
+
+from datetime import datetime
+from sqlalchemy.sql import text
 from .database import Base
 
 
@@ -8,14 +11,14 @@ class User(Base):
     __tablename__ = "users"
     id              = Column(Integer, primary_key=True, autoincrement=True)
     name            = Column(String, nullable=False)
-    email           = Column(String, unique=True)
+    email           = Column(String, unique=True, nullable=False)
     password        = Column(String, nullable=False)
-    phone_number    = Column(String, nullable=False, unique=True)
-    created_at      = Column(DateTime, nullable=False, server_default=DateTime.now())
-    updated_at      = Column(DateTime, nullable=False, server_default=DateTime.now(), onupdate=DateTime.now())
-    address         = Column(String, nullable=False)
+    phone_number    = Column(String, unique=True)
+    created_at      = Column(DateTime, nullable=False, server_default=text("now()"))
+    updated_at      = Column(DateTime, nullable=False, server_default=text("now()"), onupdate=text("now()"))
+    # address         = Column(String)
 
-
+"""
 class Restaurant(Base):
     __tablename__   = "restaurants"
     id              = Column(Integer, primary_key=True, autoincrement=True)
@@ -85,7 +88,7 @@ class OrderItem(Base):
     
     # Relationships
     menu_item       = relationship("RestaurantMenuItem", back_populates="order_items")
-
+"""
 
 """
 Notes Section:
@@ -164,6 +167,11 @@ Notes Section:
     the best way to do this is using the @computed_field decorator. 
     This allows you to generate a message dynamically based on the user's data (like their username).
 
+6. How access token are stored in headers:
+    Initially client send username and password as form data (OAuth2PasswordRequestForm) to the server
+    Server validates the credentials and returns access token in response
+    Then (OAuth2PasswordBearer) expect this access token to be included in header section in format in the format Bearer <token>  
+
+7. READ ABOUT SCOPES IN ADVANCED SECURITY SECTION (FASTAPI DOCUMENTATION):
 """
     
-

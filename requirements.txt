@@ -1,7 +1,11 @@
 fastapi[standard]
 pydantic
+pydantic-settings
 uvicorn
 sqlalchemy
 psycopg2-binary
 alembic
 phonenumbers
+pwdlib[argon2]  # Used for hashing
+pyjwt[crypto]           # used to generate jwt tokens
+argon2-cffi

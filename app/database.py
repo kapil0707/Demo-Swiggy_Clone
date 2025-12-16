@@ -17,14 +17,13 @@ from .config import settings
 # - port: Database server port number
 # - database_name: The name of the database to connect to
 
-#SQLALCHEMY_DATABASE_URL = "postgresql://{settings.database_user}:{settings.database_password}@{settings.database_host}:{settings.database_port}/{settings.database_name}"
+# SQLALCHEMY_DATABASE_URL = f"postgresql://{settings.database_user}:{settings.database_password}@{settings.database_host}:{settings.database_port}/{settings.database_name}"
 
 SQLALCHEMY_DATABASE_URL = (
-    "postgresql://{settings.database_user}:{settings.database_password}"
-    "@{settings.database_host}:{settings.database_port}/"
-    "{settings.database_name}"
+    f"postgresql://{settings.database_user}:{settings.database_password}"
+    f"@{settings.database_host}:{settings.database_port}/"
+    f"{settings.database_name}"
     )
-
 
 engine = create_engine(SQLALCHEMY_DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
