@@ -1,0 +1,15 @@
+[project]
+name = "demo-app"
+version = "0.1.0"
+description = "Swiggy Clone"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "alembic>=1.17.2",
+    "fastapi[standard]>=0.124.4",
+    "phonenumbers>=9.0.20",
+    "psycopg2-binary>=2.9.11",
+    "pydantic>=2.12.5",
+    "sqlalchemy>=2.0.45",
+    "uvicorn>=0.38.0",
+]
