@@ -43,9 +43,6 @@ def get_current_user(token: Annotated[str, Depends(oauth2_scheme)], db: Session 
         if user_id is None:
             raise credentials_exception
 
-        if role != UserRole.USER:
-            raise credentials_exception
-
     except InvalidTokenError:
         raise credentials_exception
 

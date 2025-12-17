@@ -2,6 +2,7 @@ from pydantic import BaseModel, ConfigDict
 from datetime import datetime
 from decimal import Decimal
 from typing import Optional, List
+from app.models import UserRole
 
 # User Schema
 class UserCreate(BaseModel):
@@ -10,14 +11,16 @@ class UserCreate(BaseModel):
     password: str
     address: str
     phone_number: str
+    role: UserRole
 
 class UserResponse(BaseModel):
     id: int
     name: str
     email: str
-    address: str
     phone_number: str
     created_at: datetime
+    updated_at: datetime
+    role: UserRole
 
     model_config = ConfigDict(from_attributes=True)
 
@@ -70,7 +73,6 @@ class GlobalDishCreate(BaseModel):
 
 
 class GlobalDishUpdate(BaseModel):
-    name: str | None = None
     is_veg: Optional[bool] = None
     description: str | None = None
     category: str | None = None
@@ -92,8 +94,12 @@ class MenuItemDelete(BaseModel):
     id: int
 
 
-
-
+class RestaurantCreate(BaseModel):
+    name: str
+    address: str
+    city: str
+    rating: float
+    is_open: bool
 
 class OrderItemCreate(BaseModel):
     menu_item_id: int
@@ -132,11 +138,11 @@ class OrderSummaryResponse(BaseModel):
 
     model_config = ConfigDict(from_attributes=True)
 
-# class Token(BaseModel):
-#     access_token: str
-#     token_type: str
+class Token(BaseModel):
+    access_token: str
+    token_type: str
 
 
-# class TokenData(BaseModel):
-#     id: Optional[str] = None
-#     role: Optional[str] = None
+class TokenData(BaseModel):
+    id: Optional[str] = None
+    role: Optional[str] = None

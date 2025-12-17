@@ -1,16 +1,15 @@
 # This file contains SQLAlchemy models for the database
 from sqlalchemy.sql._elements_constructors import null
-from sqlalchemy import Boolean, Column, Integer, String, DateTime, Float, ForeignKey
+from sqlalchemy import Boolean, Column, Integer, String, DateTime, Float, ForeignKey, Enum
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
-from sqlalchemy import Enum
 import enum
 
 from datetime import datetime
 from sqlalchemy.sql import text
 from .database import Base
 
-class OrderStatus(enum.Enum):
+class OrderStatus(str, enum.Enum):
     PLACED = "PLACED"
     CONFIRMED = "CONFIRMED"
     PREPARING = "PREPARING"
@@ -19,23 +18,26 @@ class OrderStatus(enum.Enum):
     CANCELLED = "CANCELLED"
 
 # Enum for authorization
-class UserRole(str, Enum):
+class UserRole(str, enum.Enum):
     USER = "USER"
     RESTAURANT_ADMIN = "RESTAURANT_ADMIN"
     ADMIN = "ADMIN"
 
 class User(Base):
-    __tablename__ = "users"
-    id              = Column(Integer, primary_key=True, autoincrement=True)
-    name            = Column(String, nullable=False)
-    email           = Column(String, unique=True, nullable=False)
-    hashed_password = Column(String, nullable=False)
-    phone_number    = Column(String, unique=True, nullable=False)
-    address         = Column(String, nullable=False)
-    created_at      = Column(DateTime, nullable=False, server_default=func.now())
-    updated_at      = Column(DateTime, nullable=False, server_default=func.now(), onupdate=func.now())
-    role            = Column(Enum(UserRole), nullable=False, default=UserRole.USER, nullable=False)
-    orders          = relationship("Order", back_populates="user")
+    __tablename__       = "users"
+    id                  = Column(Integer, primary_key=True, autoincrement=True)
+    name                = Column(String, nullable=False)
+    email               = Column(String, unique=True, nullable=False)
+    password            = Column(String, nullable=False)
+    phone_number        = Column(String, unique=True, nullable=False)
+    address             = Column(String, nullable=False)
+    created_at          = Column(DateTime, nullable=False, server_default=func.now())
+    updated_at          = Column(DateTime, nullable=False, server_default=func.now(), onupdate=func.now())
+    role                = Column(Enum(UserRole), nullable=False, default=UserRole.USER)
+    
+    # Relationship
+    orders              = relationship("Order", back_populates="user")
+    managed_restaurant  = relationship("Restaurant", back_populates="owner")
 
 
 class Restaurant(Base):
@@ -46,10 +48,13 @@ class Restaurant(Base):
     city            = Column(String, index=True)
     rating          = Column(Float, default=0.0)
     is_open         = Column(Boolean, default=True)
-    role            = Column(Enum(UserRole), nullable=False, default=UserRole.RESTAURANT_ADMIN, nullable=False)
-    # Relationship: One restaurant can sell many dishes
+    owner_id        = Column(Integer, ForeignKey("users.id"), nullable=False)
+    created_at      = Column(DateTime, nullable=False, server_default=func.now())
+
+    # Relationship:
     menu_items      = relationship("RestaurantMenuItem", back_populates="restaurant")
     orders          = relationship("Order", back_populates="restaurant")
+    owner           = relationship("User", back_populates="managed_restaurant")
 
 
 class GlobalDish(Base):
@@ -93,7 +98,7 @@ class Order(Base):
     total_amount    = Column(Float, nullable=False)
     status          = Column(Enum(OrderStatus), default=OrderStatus.PLACED)
     delivery_address= Column(String, nullable=False)
-    created_at      = Column(DateTime, nullable=False, server_default=DateTime.now())
+    created_at      = Column(DateTime, nullable=False, server_default=func.now())
     items           = relationship("OrderItem", back_populates="order") 
     user            = relationship("User", back_populates="orders")
     restaurant      = relationship("Restaurant", back_populates="orders")
