@@ -1,24 +1,43 @@
 # This file contains SQLAlchemy models for the database
+from sqlalchemy.sql._elements_constructors import null
 from sqlalchemy import Boolean, Column, Integer, String, DateTime, Float, ForeignKey
 from sqlalchemy.orm import relationship
+from sqlalchemy.sql import func
+from sqlalchemy import Enum
+import enum
 
 from datetime import datetime
 from sqlalchemy.sql import text
 from .database import Base
 
+class OrderStatus(enum.Enum):
+    PLACED = "PLACED"
+    CONFIRMED = "CONFIRMED"
+    PREPARING = "PREPARING"
+    OUT_FOR_DELIVERY = "OUT_FOR_DELIVERY"
+    DELIVERED = "DELIVERED"
+    CANCELLED = "CANCELLED"
+
+# Enum for authorization
+class UserRole(str, Enum):
+    USER = "USER"
+    RESTAURANT_ADMIN = "RESTAURANT_ADMIN"
+    ADMIN = "ADMIN"
 
 class User(Base):
     __tablename__ = "users"
     id              = Column(Integer, primary_key=True, autoincrement=True)
     name            = Column(String, nullable=False)
     email           = Column(String, unique=True, nullable=False)
-    password        = Column(String, nullable=False)
-    phone_number    = Column(String, unique=True)
-    created_at      = Column(DateTime, nullable=False, server_default=text("now()"))
-    updated_at      = Column(DateTime, nullable=False, server_default=text("now()"), onupdate=text("now()"))
-    # address         = Column(String)
+    hashed_password = Column(String, nullable=False)
+    phone_number    = Column(String, unique=True, nullable=False)
+    address         = Column(String, nullable=False)
+    created_at      = Column(DateTime, nullable=False, server_default=func.now())
+    updated_at      = Column(DateTime, nullable=False, server_default=func.now(), onupdate=func.now())
+    role            = Column(Enum(UserRole), nullable=False, default=UserRole.USER, nullable=False)
+    orders          = relationship("Order", back_populates="user")
 
-"""
+
 class Restaurant(Base):
     __tablename__   = "restaurants"
     id              = Column(Integer, primary_key=True, autoincrement=True)
@@ -27,9 +46,10 @@ class Restaurant(Base):
     city            = Column(String, index=True)
     rating          = Column(Float, default=0.0)
     is_open         = Column(Boolean, default=True)
-    
+    role            = Column(Enum(UserRole), nullable=False, default=UserRole.RESTAURANT_ADMIN, nullable=False)
     # Relationship: One restaurant can sell many dishes
     menu_items      = relationship("RestaurantMenuItem", back_populates="restaurant")
+    orders          = relationship("Order", back_populates="restaurant")
 
 
 class GlobalDish(Base):
@@ -51,8 +71,8 @@ class RestaurantMenuItem(Base):
     __tablename__   = "restaurant_menu_items"
 
     id              = Column(Integer, primary_key=True, index=True)
-    restaurant_id   = Column(Integer, ForeignKey("restaurants.id"))
-    global_dish_id  = Column(Integer, ForeignKey("global_dishes.id"))
+    restaurant_id   = Column(Integer, ForeignKey("restaurants.id"), nullable=False)
+    global_dish_id  = Column(Integer, ForeignKey("global_dishes.id"), nullable=False)
     
     # Think of applying discounts too
     price           = Column(Float, nullable=False)
@@ -68,27 +88,28 @@ class Order(Base):
     __tablename__   = "orders"
 
     id              = Column(Integer, primary_key=True, index=True)
-    user_id         = Column(Integer, ForeignKey("users.id"), ondelete="CASCADE")
-    restaurant_id   = Column(Integer, ForeignKey("restaurants.id"))
+    user_id         = Column(Integer, ForeignKey("users.id"), nullable=False)
+    restaurant_id   = Column(Integer, ForeignKey("restaurants.id"), nullable=False)
     total_amount    = Column(Float, nullable=False)
-    status          = Column(String, default="PLACED")
+    status          = Column(Enum(OrderStatus), default=OrderStatus.PLACED)
     delivery_address= Column(String, nullable=False)
     created_at      = Column(DateTime, nullable=False, server_default=DateTime.now())
     items           = relationship("OrderItem", back_populates="order") 
- 
+    user            = relationship("User", back_populates="orders")
+    restaurant      = relationship("Restaurant", back_populates="orders")
 
 class OrderItem(Base):
     __tablename__   = "order_items"
 
     id              = Column(Integer, primary_key=True, index=True)
-    order_id        = Column(Integer, ForeignKey("orders.id"))
-    menu_item_id    = Column(Integer, ForeignKey("restaurant_menu_items.id"))
+    order_id        = Column(Integer, ForeignKey("orders.id"), nullable=False)
+    menu_item_id    = Column(Integer, ForeignKey("restaurant_menu_items.id"), nullable=False)
     quantity        = Column(Integer, nullable=False)
     price_at_order  = Column(Float, nullable=False)
     
     # Relationships
     menu_item       = relationship("RestaurantMenuItem", back_populates="order_items")
-"""
+    order           = relationship("Order", back_populates="items")
 
 """
 Notes Section:
