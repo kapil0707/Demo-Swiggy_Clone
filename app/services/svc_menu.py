@@ -16,7 +16,7 @@ def check_global_dish_validity(db: Session, dish_name: str)->GlobalDish:
     # If the dish is not available, raise an exception
     # Later change this logic that if the dish is not available, ask admin to add the receipe to global dish table
     # Also once the item is added, the restaurant admin should receive a notification that the item is added to the menu
-    global_dish = db.query(GlobalDish).filter(GlobalDish.name.lower() == dish_name.lower()).first()
+    global_dish = db.query(GlobalDish).filter(GlobalDish.name == dish_name).first()
     
     if not global_dish:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Global dish with name: '{dish_name}' is not available")
@@ -25,11 +25,15 @@ def check_global_dish_validity(db: Session, dish_name: str)->GlobalDish:
 
 def add_item_to_menu(db: Session, user_id: int, dish_name: str, price: float)->RestaurantMenuItem:
     
+    print(f"add_item_to_menu -> Function starts")
     # Check if restaurant is valid
     restaurant = get_restaurant_by_user_id(db, user_id)
+
+    print(f"add_item_to_menu -> Rstuarant_id: {restaurant.id}")
     
     # Check if global dish is valid
     global_dish = check_global_dish_validity(db, dish_name)
+    print(f"add_item_to_menu -> Global_dish_id: {global_dish.id}")
     
     # Create the link between the Restaurant and the Global Dish
     new_item = RestaurantMenuItem(

@@ -1,4 +1,4 @@
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 from datetime import datetime
 from decimal import Decimal
 from typing import Optional, List
@@ -11,7 +11,7 @@ class UserCreate(BaseModel):
     password: str
     address: str
     phone_number: str
-    role: UserRole
+    role: UserRole = Field(description="Role of the user")
 
 class UserResponse(BaseModel):
     id: int
@@ -100,6 +100,7 @@ class RestaurantCreate(BaseModel):
     city: str
     rating: float
     is_open: bool
+    owner_id: int
 
 class OrderItemCreate(BaseModel):
     menu_item_id: int

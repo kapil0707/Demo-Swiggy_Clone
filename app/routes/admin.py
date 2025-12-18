@@ -18,7 +18,7 @@ def add_dish(
     db: Session = Depends(get_db),
     current_user = Depends(oauth2.require_roles(models.UserRole.ADMIN))
 ):
-    dish = db.query(models.GlobalDish).filter(models.GlobalDish.name.lower() == dish_in.name.lower()).first()
+    dish = db.query(models.GlobalDish).filter(models.GlobalDish.name == dish_in.name).first()
     
     if dish:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Dish already exists")
@@ -36,10 +36,16 @@ def add_restaurant(
     db: Session = Depends(get_db),
     current_user = Depends(oauth2.require_roles(models.UserRole.ADMIN))
 ):
-    restaurant = db.query(models.Restaurant).filter(models.Restaurant.name.lower() == restaurant_in.name.lower()).first()
+    restaurant = db.query(models.Restaurant).filter(models.Restaurant.name == restaurant_in.name).first()
     
     if restaurant:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Restaurant already exists")
+
+    # Check owner information from users table
+    owner = db.query(models.User).filter(models.User.id == restaurant_in.owner_id).first()
+    
+    if not owner:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"User with ID: '{restaurant_in.owner_id}' not found")
 
     new_restaurant = models.Restaurant(**restaurant_in.dict())
     db.add(new_restaurant)

@@ -51,7 +51,7 @@ def add_menu_item(
 ):
     # Logic: Get the restaurant associated with this admin
     # (Assuming you link User and Restaurant or the Admin manages one)
-    return svc_menu.add_item_to_menu(db, restaurant_id=current_user.id, item_in=item_in)
+    return svc_menu.add_item_to_menu(db, user_id=current_user.id, item_in=item_in)
 
 
 @router.put("/menu/{menu_item_id}", status_code=status.HTTP_201_CREATED)
