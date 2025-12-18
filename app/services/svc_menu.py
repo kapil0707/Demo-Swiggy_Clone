@@ -1,6 +1,7 @@
 from sqlalchemy.orm import Session
 from app.models import RestaurantMenuItem, GlobalDish, Restaurant
 from fastapi import HTTPException, status
+from app.schemas import MenuItemCreate
 
 def get_restaurant_by_user_id(db: Session, user_id: int)->Restaurant:
     restaurant = db.query(Restaurant).filter(Restaurant.owner_id == user_id).first()
@@ -23,7 +24,7 @@ def check_global_dish_validity(db: Session, dish_name: str)->GlobalDish:
     
     return global_dish
 
-def add_item_to_menu(db: Session, user_id: int, dish_name: str, price: float)->RestaurantMenuItem:
+def add_item_to_menu(db: Session, user_id: int, item_in: MenuItemCreate)->RestaurantMenuItem:
     
     print(f"add_item_to_menu -> Function starts")
     # Check if restaurant is valid
@@ -32,14 +33,14 @@ def add_item_to_menu(db: Session, user_id: int, dish_name: str, price: float)->R
     print(f"add_item_to_menu -> Rstuarant_id: {restaurant.id}")
     
     # Check if global dish is valid
-    global_dish = check_global_dish_validity(db, dish_name)
+    global_dish = check_global_dish_validity(db, item_in.name)
     print(f"add_item_to_menu -> Global_dish_id: {global_dish.id}")
     
     # Create the link between the Restaurant and the Global Dish
     new_item = RestaurantMenuItem(
         restaurant_id=restaurant.id,
         global_dish_id=global_dish.id,
-        price=price,
+        price=item_in.price,
         is_available=True
     )   
 

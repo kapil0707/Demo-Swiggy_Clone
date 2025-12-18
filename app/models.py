@@ -69,6 +69,7 @@ class GlobalDish(Base):
     # It is a Python-only convenience tool. It does not change your database schema, 
     # but it makes writing your API code much faster.
     # Relationship: One dish can be sold by many restaurants
+
     restaurant_listings   = relationship("RestaurantMenuItem", back_populates="dish") 
     
 
@@ -78,6 +79,7 @@ class RestaurantMenuItem(Base):
     id              = Column(Integer, primary_key=True, index=True)
     restaurant_id   = Column(Integer, ForeignKey("restaurants.id"), nullable=False)
     global_dish_id  = Column(Integer, ForeignKey("global_dishes.id"), nullable=False)
+    # is_veg          = Column(Boolean, ForeignKey("global_dishes.is_veg"), nullable=False)
     
     # Think of applying discounts too
     price           = Column(Float, nullable=False)
