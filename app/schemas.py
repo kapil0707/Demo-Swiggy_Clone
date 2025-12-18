@@ -82,11 +82,13 @@ class GlobalDishDelete(BaseModel):
     id: int
 
 
-class MenuItemCreate(GlobalDishCreate):
+class MenuItemCreate(BaseModel):
+    name: str 
     price: float
     is_available: bool = True
 
-class MenuItemUpdate(GlobalDishUpdate):
+class MenuItemUpdate(BaseModel):
+    name: str
     price: float | None = None
     is_available: bool | None = None
 

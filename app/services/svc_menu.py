@@ -26,22 +26,22 @@ def check_global_dish_validity(db: Session, dish_name: str)->GlobalDish:
 
 def add_item_to_menu(db: Session, user_id: int, item_in: MenuItemCreate)->RestaurantMenuItem:
     
-    print(f"add_item_to_menu -> Function starts")
+    # print(f"add_item_to_menu -> Function starts")
     # Check if restaurant is valid
     restaurant = get_restaurant_by_user_id(db, user_id)
 
-    print(f"add_item_to_menu -> Rstuarant_id: {restaurant.id}")
+    # print(f"add_item_to_menu -> Rstuarant_id: {restaurant.id}")
     
     # Check if global dish is valid
     global_dish = check_global_dish_validity(db, item_in.name)
-    print(f"add_item_to_menu -> Global_dish_id: {global_dish.id}")
+    # print(f"add_item_to_menu -> Global_dish_id: {global_dish.id}")
     
     # Create the link between the Restaurant and the Global Dish
     new_item = RestaurantMenuItem(
         restaurant_id=restaurant.id,
         global_dish_id=global_dish.id,
         price=item_in.price,
-        is_available=True
+        is_available=item_in.is_available
     )   
 
     db.add(new_item)
